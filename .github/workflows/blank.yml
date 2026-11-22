@@ -1,0 +1,25 @@
+name: Pack Kernel Repo
+on: workflow_dispatch  # 允许你手动点击运行
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target repo (shallow)
+        uses: actions/checkout@v4
+        with:
+          repository: 'oppo-source/android_kernel_oppo_sm4250' # 替换成真实的仓库路径
+          path: kernel_src
+          fetch-depth: 1  # 只拉最新提交，极大减少 Actions 内部的传输量
+
+      - name: Archive the source code
+        run: |
+          # 把整个目录打包成 tar.gz，压缩率高，适合源码
+          tar -czf kernel_src.tar.gz kernel_src/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-source-archive
+          path: kernel_src.tar.gz
+          retention-days: 1  # 保持一天即可，尽快下载
